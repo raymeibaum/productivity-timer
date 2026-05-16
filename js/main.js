@@ -1,6 +1,10 @@
 const FOCUS_DURATION = 50 * 60 * 1000
 const BREAK_DURATION = 10 * 60 * 1000
 
+// Stored outside Alpine so rAF writes don't trigger reactive re-renders
+let _labelRaf = null
+let _animStart = null
+
 function timer() {
   return {
     state: 'ready',
@@ -24,14 +28,33 @@ function timer() {
       }[this.state]
     },
 
-    get tickAngle() {
-      const ms = this.state === 'ready' ? 0 : this.timeRemaining
-      return (ms / 1000 / 60 / 60) * 360
+    startTickAnim(durationMs) {
+      const deg = (durationMs / 3600000) * 360
+      const group = document.querySelector('.tick-group')
+      group.style.setProperty('--tick-from', `${deg}deg`)
+      group.style.animation = 'none'
+      document.body.offsetHeight
+      group.style.animation = `tick-sweep ${durationMs}ms linear forwards`
+
+      cancelAnimationFrame(_labelRaf)
+      _animStart = performance.now()
+      const label = document.querySelector('.tick-label')
+      const frame = () => {
+        const ms = Math.max(0, durationMs - (performance.now() - _animStart))
+        const a = (ms / 3600000) * 2 * Math.PI
+        // translate runs on compositor; left/top are fixed and never change
+        const dx = (115.2 * Math.sin(a)).toFixed(2)
+        const dy = (115.2 * (1 - Math.cos(a))).toFixed(2)
+        label.style.translate = `calc(-50% + ${dx}px) calc(-50% + ${dy}px)`
+        label.textContent = Math.floor(ms / 60000)
+        if (ms > 0) _labelRaf = requestAnimationFrame(frame)
+      }
+      _labelRaf = requestAnimationFrame(frame)
     },
 
-    get tickMinutes() {
-      const ms = this.state === 'ready' ? 0 : this.timeRemaining
-      return Math.floor(ms / 1000 / 60)
+    stopTickAnim() {
+      document.querySelector('.tick-group').style.animation = 'none'
+      cancelAnimationFrame(_labelRaf)
     },
 
     start() {
@@ -40,6 +63,7 @@ function timer() {
       this.timeRemaining = FOCUS_DURATION
       this.intervalId = setInterval(() => this.tick(), 500)
       this.updateTitle()
+      this.startTickAnim(FOCUS_DURATION)
     },
 
     tick() {
@@ -59,6 +83,7 @@ function timer() {
       this.endTime = Date.now() + BREAK_DURATION
       this.timeRemaining = BREAK_DURATION
       this.intervalId = setInterval(() => this.tick(), 500)
+      this.startTickAnim(BREAK_DURATION)
     },
 
     transitionToReady() {
@@ -68,6 +93,7 @@ function timer() {
       this.timeRemaining = 0
       this.endTime = null
       this.updateTitle()
+      this.stopTickAnim()
     },
 
     cancel() {
@@ -77,6 +103,7 @@ function timer() {
       this.timeRemaining = 0
       this.endTime = null
       this.updateTitle()
+      this.stopTickAnim()
     },
 
     startPress() {

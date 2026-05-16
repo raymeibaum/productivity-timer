@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@keyframes tick-sweep {
+  from { transform: rotate(var(--tick-from)); }
+  to   { transform: rotate(0deg); }
+}
+
+.tick-group {
+  transform-origin: 0 0;
+}

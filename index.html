@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,25 +8,23 @@
     <link rel="stylesheet" href="./css/style.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"></script>
 </head>
-<body x-data="timer()" :class="bgClass"
-      class="min-h-screen flex flex-col items-center justify-center space-y-4 transition-colors duration-700">
 
-    <!-- Static circle in its own SVG — never repainted by tick updates -->
+<body x-data="timer()" :class="bgClass"
+    class="min-h-screen flex flex-col items-center justify-center space-y-4 transition-colors duration-700">
+
+    <!-- Wrapper lets the HTML label overlay the SVG -->
     <div class="relative w-72 h-72">
-        <svg class="absolute inset-0 w-full h-full" viewBox="-20 -20 240 240">
-            <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1" opacity="0.25"/>
-        </svg>
-        <!-- Tick in a separate SVG — updates here can't affect the circle -->
-        <svg class="absolute inset-0 w-full h-full" viewBox="-20 -20 240 240" x-show="state !== 'ready'">
-            <g :transform="`rotate(${tickAngle}, 100, 100)`">
-                <line x1="100" y1="20" x2="100" y2="34"
-                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                <text x="100" y="4" text-anchor="middle" dominant-baseline="middle"
-                      :transform="`rotate(${-tickAngle}, 100, 4)`"
-                      font-size="12" fill="currentColor" font-family="monospace"
-                      x-text="tickMinutes"/>
+        <svg class="w-full h-full" viewBox="-20 -20 240 240">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1" opacity="0.25" />
+            <g transform="translate(100, 100)">
+                <g class="tick-group" x-show="state !== 'ready'">
+                    <line x1="0" y1="-80" x2="0" y2="-66" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                </g>
             </g>
         </svg>
+        <!-- Label driven by rAF; positioned at 12-o'clock anchor, moved by compositor translate -->
+        <span x-show="state !== 'ready'" style="left:50%;top:10%"
+            class="tick-label absolute font-mono text-xs pointer-events-none"></span>
     </div>
 
     <!-- Button + hint grouped so the hint sits close to the button -->
