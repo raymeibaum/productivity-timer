@@ -24,20 +24,14 @@ function timer() {
       }[this.state]
     },
 
-    get tickPos() {
+    get tickAngle() {
       const ms = this.state === 'ready' ? 0 : this.timeRemaining
-      const angle = (ms / 1000 / 60 / 60) * 2 * Math.PI
-      const cx = 100, cy = 100, r = 80, tickLen = 14, labelR = r + 16
-      const sin = Math.sin(angle), cos = Math.cos(angle)
-      return {
-        x1: cx + (r - tickLen) * sin,
-        y1: cy - (r - tickLen) * cos,
-        x2: cx + r * sin,
-        y2: cy - r * cos,
-        lx: cx + labelR * sin,
-        ly: cy - labelR * cos,
-        minutes: Math.floor(ms / 1000 / 60),
-      }
+      return (ms / 1000 / 60 / 60) * 360
+    },
+
+    get tickMinutes() {
+      const ms = this.state === 'ready' ? 0 : this.timeRemaining
+      return Math.floor(ms / 1000 / 60)
     },
 
     start() {
