@@ -1,4 +1,4 @@
-const FOCUS_DURATION = 1 * 10 * 1000
+const FOCUS_DURATION = 50 * 60 * 1000
 const BREAK_DURATION = 10 * 60 * 1000
 
 function timer() {
