@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "concurrently \"tailwindcss -i ./css/input.css -o ./css/style.css --watch\" \"live-server --watch=index.html,js,css/style.css\""
+    "dev": "concurrently \"tailwindcss -i ./css/input.css -o ./css/style.css --watch --minify\" \"live-server --watch=index.html,js,css/style.css\""
   },
   "dependencies": {
     "tailwindcss": "^4.3.0"

@@ -7,4 +7,5 @@
 
 .tick-group {
   transform-origin: 0 0;
+  --tick-from: 0deg;
 }

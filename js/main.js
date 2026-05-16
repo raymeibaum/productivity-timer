@@ -4,6 +4,7 @@ const BREAK_DURATION = 10 * 60 * 1000
 // Stored outside Alpine so rAF writes don't trigger reactive re-renders
 let _labelRaf = null
 let _animStart = null
+let _audioCtx = null
 
 function timer() {
   return {
@@ -30,7 +31,7 @@ function timer() {
 
     startTickAnim(durationMs) {
       const deg = (durationMs / 3600000) * 360
-      const group = document.querySelector('.tick-group')
+      const group = this.$refs.tickGroup
       group.style.setProperty('--tick-from', `${deg}deg`)
       group.style.animation = 'none'
       document.body.offsetHeight
@@ -38,7 +39,7 @@ function timer() {
 
       cancelAnimationFrame(_labelRaf)
       _animStart = performance.now()
-      const label = document.querySelector('.tick-label')
+      const label = this.$refs.tickLabel
       const frame = () => {
         const ms = Math.max(0, durationMs - (performance.now() - _animStart))
         const a = (ms / 3600000) * 2 * Math.PI
@@ -53,7 +54,7 @@ function timer() {
     },
 
     stopTickAnim() {
-      document.querySelector('.tick-group').style.animation = 'none'
+      this.$refs.tickGroup.style.animation = 'none'
       cancelAnimationFrame(_labelRaf)
     },
 
@@ -117,7 +118,7 @@ function timer() {
     },
 
     formatTime(ms) {
-      const s = Math.ceil(ms / 1000)
+      const s = Math.floor(ms / 1000)
       const m = Math.floor(s / 60)
       const r = s % 60
       return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`
@@ -133,14 +134,13 @@ function timer() {
     },
 
     notify(msg) {
-      document.title = msg
-
       if (Notification.permission === 'granted') {
         new Notification('Focus Timer', { body: msg })
       }
 
       try {
-        const ctx = new AudioContext()
+        _audioCtx ??= new AudioContext()
+        const ctx = _audioCtx
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
         osc.connect(gain)
