@@ -3,11 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productivity Timer</title>
+    <title>Focus Timer</title>
     <link rel="stylesheet" href="./css/style.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"></script>
 </head>
 <body>
-    <h1 class="text-4xl text-red-600">Hello World</h1>
+    <div x-data="timer()" :class="bgClass"
+        class="min-h-screen flex flex-col items-center justify-center space-y-6 transition-colors duration-700">
+    
+        <!-- Clock face -->
+        <svg viewBox="-20 -20 240 240" class="w-72 h-72">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1" opacity="0.25" />
+            <line x-show="state !== 'ready'" :x1="tickPos.x1" :y1="tickPos.y1" :x2="tickPos.x2" :y2="tickPos.y2"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+            <text x-show="state !== 'ready'" :x="tickPos.lx" :y="tickPos.ly" text-anchor="middle" dominant-baseline="middle"
+                font-size="12" fill="currentColor" font-family="monospace" x-text="tickPos.minutes" />
+        </svg>
+    
+        <!-- Button + hint grouped so the hint sits close to the button -->
+        <div class="flex flex-col items-center gap-3">
+            <button @mousedown="state === 'ready' ? start() : startPress()" @mouseup="endPress()" @mouseleave="endPress()"
+                @touchstart.prevent="state === 'ready' ? start() : startPress()" @touchend="endPress()" :class="[
+                                    state === 'ready'  ? 'ring-stone-400' :
+                                    state === 'focus'  ? 'ring-violet-500' : 'ring-emerald-500',
+                                    isPressing ? 'opacity-50' : ''
+                                ]"
+                class="px-8 py-3 rounded-full ring-1 text-sm uppercase tracking-widest select-none transition-[box-shadow,opacity,transform] duration-150 cursor-pointer"
+                x-text="isPressing ? 'Canceling…' : state === 'ready' ? 'Start' : state === 'focus' ? 'Focusing' : 'On break'">
+            </button>
+    
+            <!-- Always occupies space, invisible when ready -->
+            <p :class="state === 'ready' ? 'invisible' : ''" class="text-xs opacity-70">
+                Hold to cancel
+            </p>
+        </div>
+    
+    </div>
     <script src="./js/main.js"></script>
 </body>
 </html>
